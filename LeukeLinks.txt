@@ -1,3 +1,4 @@
 https://www.youtube.com/watch?v=MMxFDaIOHsE&list=PLzMcBGfZo4-lwGZWXz5Qgta_YNX3_vLS2 	Python Flappy Bird AI Tutorial (with NEAT) Tech with tim
 https://www.youtube.com/watch?v=OGHA-elMrxI	Python Flappy Bird AI UITLEG NEAT
-https://www.youtube.com/watch?v=LzaWrmKL1Z4  	Reinforcement Learning Tutorial | Reinforcement Learning Example Using Python | Edureka
+https://www.youtube.com/watch?v=LzaWrmKL1Z4    Reinforcement Learning Tutorial | Reinforcement Learning Example Using Python | Edureka
+https://www.youtube.com/watch?v=wc-FxNENg9U    Deep Q Learning is Simple with PyTorch | Full Tutorial 2020 (38:54)
