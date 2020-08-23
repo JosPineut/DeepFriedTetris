@@ -1,7 +1,11 @@
 import numpy as np
+import time
 from Tetriss.TetrisEnv import TetrisEnv
-print("hello world")
-TetrisEnv = TetrisEnv.__init__(, 20, 10)
-print("hello world")
-drawField()
-print("hello world")
+TetrisEnv = TetrisEnv(20, 10)
+TetrisEnv.drawField()
+time.sleep(5)
+while True:
+
+    TetrisEnv.move("down")
+    TetrisEnv.drawField()
+    time.sleep(5)
