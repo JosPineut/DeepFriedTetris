@@ -137,36 +137,41 @@ class TetrisEnv:
 
         # Change: geeft mee wat er verandert.
         # Kan meegegeven aan de ColDetect zodat deze de (illegale) movements ez kan terugdraaien
-        change = []
+        change = [0, 0]
+        move_made = 0
 
         if action == 'down':
             change = [0, 1]
+            move_made = 0
 
         # up: change rotation by 1
         elif action == 'up':
             self.currP.rotation = (self.currP.rotation + 1) % len(self.currP.shape)
+            move_made = 1
 
         # left: position in width -1
         elif action == 'left':
             change = [-1, 0]
+            move_made = 2
 
         # right: position in width +1
         elif action == 'right':
             change = [1, 0]
+            move_made = 3
 
         self.currP.changePosition(change[0], change[1])
 
-        self.collDetect(change[0], change[1])
+        self.collDetect(change[0], change[1], move_made)
 
-    def collDetect(self, x_changed, y_changed):
+    def collDetect(self, x_changed, y_changed, move_made):
         block_positions = self.currP.get_positions()
-        print(block_positions)
+        #print(block_positions)
         collision = False
 
         for row in range(len(self.positions)):
             for element in range(len(self.positions[0])):
                 if self.positions[row, element] != 0:
-                    if (row, element) in block_positions:
+                    if [element, row] in block_positions:
                         collision = True
                         break
             if collision:
@@ -174,20 +179,34 @@ class TetrisEnv:
 
         # collision detection with the game's edge
         for pos in block_positions:
-            if pos[0] > len(self.positions[0]):
+            if pos[0] > len(self.positions[0])-1:
                 self.move('left')  # Move left cause you're over right edge
             if pos[0] < 0:
                 self.move('right')  # Move right cause you're over left edge
             if pos[1] <= 0:
-                pass  # Reached bottom, lock block and move to the next piece
-            if pos[1] > len(self.positions):
-                self.endGame()
+                pass
+            if pos[1] >= len(self.positions):
+                self.currP.changePosition(x_changed * -1, y_changed * -1)
+                for position in block_positions:
+                    self.positions[position[1]-1][position[0]] = 3
+                self.nextBlock()
+                break
 
         # Als de game niet over is, check dan of er volle lijnen zijn gemaakt
         self.removeLine()
 
         if collision:
-            self.nextBlock()
+            if move_made == 0:
+                self.currP.changePosition(x_changed * -1, y_changed * -1)
+                for position in block_positions:
+                    self.positions[position[1] - 1][position[0]] = 3
+                self.nextBlock()
+            elif move_made == 1:
+                self.currP.rotation = (self.currP.rotation - 1) % len(self.currP.shape)
+            elif move_made == 2:
+                self.move('right')
+            elif move_made == 3:
+                self.move('left')
 
     def nextBlock(self):
         # Pak een nieuw blok klaar
@@ -205,8 +224,8 @@ class TetrisEnv:
                 else:
                     full = False
             if full:
-                np.delete(self.positions, row, 0)
-                np.insert(self.positions, 0, np.zeros((1, len(self.positions[0]))), axis=0)
+                self.positions = np.delete(self.positions, row, 0)
+                self.positions = np.insert(self.positions, 0, np.zeros((1, len(self.positions[0]))), axis=0)
             full = True
 
     def drawField(self):
