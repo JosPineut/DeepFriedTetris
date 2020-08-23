@@ -1,6 +1,9 @@
 import numpy as np
 import random
+import pygame
 
+
+DISPLAYSIZE = (2000, 1200)
 S = [['.....',
       '.....',
       '..00.',
@@ -160,14 +163,18 @@ class TetrisEnv:
                 break
 
         for pos in block_positions:
-            if pos[1] > len(self.positions[0]):
+            if pos[1] > len(self.positions):
                 # Todo Stuur hem naar het game-over screen, game is
                 self.endGame()
+            if pos[0] > len(self.positions[0]):
+                self.move('left')  # Move left cause you're over right edge
+            if pos[0] < 0:
+                self.move('right')  # Move right cause you're over left edge
 
-        #Als de game niet over is, check dan of er lijnen zijn gemaakt
+        # Als de game niet over is, check dan of er volle lijnen zijn gemaakt
         self.removeLine()
 
-        #Pak een nieuw blok klaar
+        # Pak een nieuw blok klaar
         self.currP = self.nextP
         self.currP.makeCurrent()
 
@@ -183,15 +190,29 @@ class TetrisEnv:
                     full = False
             if full:
                 np.delete(self.positions, row, 0)
-                np.insert(self.positions, 0, np.zeros((1, len(self.positions[0]))), axis = 0)
+                np.insert(self.positions, 0, np.zeros((1, len(self.positions[0]))), axis=0)
             full = True
-                
+
     def drawField(self):
         # canvas 2000x1200
         # plak erop u veld
         # rechts plak volgend stuk
         # onder rechts plak score
-        pass
+
+        if not pygame.display.get_init():  # If not done before initialise display
+            display = pygame.display.init()
+
+        display.set_mode(size=DISPLAYSIZE, )  # Set the display size
+
+        surface = pygame.Surface(DISPLAYSIZE)
+        for row in range(len(self.positions)):
+            for element in range(len(self.positions[0])):
+                rect = pygame.rect((row * 5, element * 5), (5, 5))
+                pygame.draw.rect(Surface=surface, color=(0, 255, 0), width=2, rect=rect)
+
+        surface.blit(surface, display)  # Draw the surface on the display
+
+        display.flip()  # Update the display
 
     def endGame(self):
         pass
@@ -207,8 +228,8 @@ class Piece:
 
     def makeCurrent(self):
         # Todo width bepalen
-        width = 0
-        self.position = [width/2, 0]
+        width = len(self.positions[0])
+        self.position = [int(width / 2), 0]
 
     def get_positions(self):
         positions = []
@@ -221,6 +242,3 @@ class Piece:
 
     def changePosition(self, x, y):
         self.position = self.position[self.position[0] + x, self.position[1] + y]
-
-    def set_positions(self, position):
-        self.position = position
