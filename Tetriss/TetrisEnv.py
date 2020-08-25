@@ -126,6 +126,9 @@ class TetrisEnv:
         self.score = 0
         self.height = height
         self.width = width
+        self.done = False
+        self.fall_time = 1
+        pygame.font.init()
 
     def getRandomPiece(self):
         # pick a random shape from the shapes list
@@ -158,6 +161,7 @@ class TetrisEnv:
         elif action == 'right':
             change = [1, 0]
             move_made = 3
+            print("RIGHT")
 
         self.currP.changePosition(change[0], change[1])
 
@@ -165,7 +169,6 @@ class TetrisEnv:
 
     def collDetect(self, x_changed, y_changed, move_made):
         block_positions = self.currP.get_positions()
-        #print(block_positions)
         collision = False
 
         for row in range(len(self.positions)):
@@ -180,12 +183,15 @@ class TetrisEnv:
         # collision detection with the game's edge
         for pos in block_positions:
             if pos[0] > len(self.positions[0])-1:
-                self.move('left')  # Move left cause you're over right edge
+                self.currP.changePosition(x_changed * -1, y_changed * -1)
+                break
             if pos[0] < 0:
-                self.move('right')  # Move right cause you're over left edge
+                self.currP.changePosition(x_changed * -1, y_changed * -1)
+                break
             if pos[1] <= 0:
                 if collision:
                     self.endGame()
+                    break
             if pos[1] >= len(self.positions):
                 self.currP.changePosition(x_changed * -1, y_changed * -1)
                 for position in block_positions:
@@ -218,6 +224,8 @@ class TetrisEnv:
 
     def removeLine(self):
         full = True
+        lines_removed = 0
+        scores = [0, 40, 100, 300, 1200]
         for row in range(len(self.positions)):
             for element in range(len(self.positions[0])):
                 if self.positions[row, element] != 0:
@@ -227,7 +235,17 @@ class TetrisEnv:
             if full:
                 self.positions = np.delete(self.positions, row, 0)
                 self.positions = np.insert(self.positions, 0, np.zeros((1, len(self.positions[0]))), axis=0)
+                lines_removed += 1
             full = True
+        self.score += scores[lines_removed]
+        if self.score >= 200:
+            self.fall_time = 0.8
+            if self.score >=  400:
+                self.fall_time = 0.6
+                if self.score >= 600:
+                    self.fall_time = 0.4
+                    if self.score >= 800:
+                        self.fall_time = 0.2
 
     def drawField(self):
         blocksize = 25
@@ -277,13 +295,20 @@ class TetrisEnv:
                 (blocksize, blocksize))
             pygame.draw.rect(surface, (0, 255, 0), rect)
 
+        font = pygame.font.SysFont('comicsans', 50, bold=True)
+        label = font.render(str(self.score), 1, (255, 255, 255))
+
+        surface.blit(label, (self.width * (blocksize + edgesize) + 8 * (blocksize + edgesize) - label.get_width(),
+                             self.height * (blocksize + edgesize) - label.get_height() / 2))
+
         display_surface.blit(surface, (0, 0))  # Draw the surfaces on the display
         pygame.display.flip()  # Update the display
+
 
     def endGame(self):
         # TODO endgame screen
         print("Dood!")
-        pygame.quit()
+        self.done = True
 
 class Piece:
     def __init__(self, shape):
