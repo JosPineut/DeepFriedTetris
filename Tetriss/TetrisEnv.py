@@ -184,7 +184,8 @@ class TetrisEnv:
             if pos[0] < 0:
                 self.move('right')  # Move right cause you're over left edge
             if pos[1] <= 0:
-                pass
+                if collision:
+                    self.endGame()
             if pos[1] >= len(self.positions):
                 self.currP.changePosition(x_changed * -1, y_changed * -1)
                 for position in block_positions:
@@ -281,8 +282,8 @@ class TetrisEnv:
 
     def endGame(self):
         # TODO endgame screen
-        pass
-
+        print("Dood!")
+        pygame.quit()
 
 class Piece:
     def __init__(self, shape):
