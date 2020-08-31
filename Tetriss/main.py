@@ -9,7 +9,6 @@ TetrisEnv = TetrisEnv(20, 10)
 TetrisEnv.drawField()
 time.sleep(0.1)
 start = time.time()
-getal = 0
 alive = True
 
 while alive:
@@ -29,7 +28,9 @@ while alive:
     if stop-start >= TetrisEnv.fall_time:
         TetrisEnv.move("down")
         start = time.time()
-
-
     alive = not TetrisEnv.done
 pygame.quit()
+
+
+
+
